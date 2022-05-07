@@ -72,7 +72,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
 
   if (!user) {
     const [nounce] = await Nounce.upsert({
-      id: crypto.randomBytes(32).toString("base64"),
+      id: crypto.randomUUID(),
       userId: interaction.member!.user.id,
     });
 
@@ -155,7 +155,7 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
 
     if (!user) {
       const [nounce] = await Nounce.upsert({
-        id: crypto.randomBytes(32).toString("base64"),
+        id: crypto.randomUUID(),
         userId: interaction.member!.user.id,
       });
 
