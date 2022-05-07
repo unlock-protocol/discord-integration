@@ -36,7 +36,6 @@ export const User = sequelize.define<Model<User>>("Users", {
 export interface Nounce {
   id: string;
   userId?: string;
-  revoked: boolean;
 }
 
 export const Nounce = sequelize.define<Model<Nounce>>("Nounce", {
@@ -48,11 +47,6 @@ export const Nounce = sequelize.define<Model<Nounce>>("Nounce", {
   userId: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
-  revoked: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
   },
 });
 
