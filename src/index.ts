@@ -51,7 +51,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
 
   if (hasRole) {
     await interaction.editReply({
-      content: `Welcome to Unlock Community, ${interaction.member?.user}. You can start sending messages now.`,
+      content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
     });
     return;
   }
@@ -106,7 +106,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
       await (interaction.member!.roles as GuildMemberRoleManager).add(role);
 
       await interaction.editReply({
-        content: `You have a valid Unlock Membership. Welcome to Unlock Community, ${
+        content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
           interaction.member!.user
         }. You can start sending messages now.`,
       });
