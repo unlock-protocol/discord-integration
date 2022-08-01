@@ -43,7 +43,7 @@ export const web3Service = new Web3Service({
     name: "Polygon",
   },
   "100": {
-    publicProvider: "https://rpc.xdaichain.com/",
+    publicProvider: "https://rpc.gnosischain.com",
     provider:
       "https://cool-empty-bird.xdai.quiknode.pro/4edba942fb43c718f24480484684e907fe3fe1d3/",
     unlockAddress: "0x1bc53f4303c711cc693F6Ec3477B83703DcB317f",

@@ -10,7 +10,7 @@ export const paywallConfig = {
   },
   icon: "https://raw.githubusercontent.com/unlock-protocol/unlock/master/design/brand/1808-Unlock-Identity_Unlock-WordMark.svg",
   callToAction: {
-    default: `Get an Unlock membership to access our Discord, blog comments and more! Use the claim button if you cannot pay for gas.`,
+    default: `Get an Unlock membership to access our Discord, blog comments and more! Use the claim button.`,
   },
 };
 
