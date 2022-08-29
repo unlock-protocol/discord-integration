@@ -214,10 +214,7 @@ fastify.get<{
     nounce: string;
   };
 }>("/checkout/:nounce", async (request, response) => {
-  const checkoutURL = new URL(
-    "/alpha/checkout",
-    "https://staging-app.unlock-protocol.com"
-  );
+  const checkoutURL = new URL("/checkout", "https://app.unlock-protocol.com");
   checkoutURL.searchParams.set(
     "paywallConfig",
     JSON.stringify(config.paywallConfig)
