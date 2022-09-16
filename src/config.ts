@@ -7,7 +7,7 @@ export const paywallConfig = {
       network: 100,
     },
   },
-  metadataInputs: [{ name: "email", type: "email", required: false }],
+  metadataInputs: [{ name: "email", type: "email", required: true }],
 };
 
 export const config = {
