@@ -83,7 +83,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
     const row = new MessageActionRow().addComponents(
       new MessageButton()
         .setStyle("LINK")
-        .setLabel("Buy Membership")
+        .setLabel("Claim Membership")
         .setURL(checkoutURL.toString())
         .setEmoji("🔑")
     );
