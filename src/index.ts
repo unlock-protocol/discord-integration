@@ -116,7 +116,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
       await interaction.editReply({
         content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
           interaction.member!.user
-        }. You can start sending messages now.`,
+        }. You can start sending messages now. Head over ✈ to #introductions and tell us a little more about yourself.`,
       });
       return;
     }
@@ -201,7 +201,7 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
         await interaction.editReply({
           content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
             interaction.member!.user
-          }. You can start sending messages now.`,
+          }. You can start sending messages now. Head over ✈ to #introductions and tell us a little more about yourself.`,
         });
         return;
       }
@@ -265,7 +265,7 @@ fastify.get<{
 
   if (channel?.type === "GUILD_TEXT") {
     await channel.send({
-      content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now.`,
+      content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now. Head over ✈ to #introductions and tell us a little more about yourself.`,
     });
   }
   response.redirect(`https://discord.com/channels/${guildId}`);
@@ -346,7 +346,7 @@ fastify.get<{
 
     if (channel?.type === "GUILD_TEXT") {
       await channel.send({
-        content: `Welcome to the Unlock Community, ${user}. You can start sending messages now.`,
+        content: `Welcome to the Unlock Community, ${user}. You can start sending messages now. Head over ✈ to #introductions and tell us a little more about yourself.`,
       });
     }
     return res.redirect(`https://discord.com/channels/${guildId}`);
