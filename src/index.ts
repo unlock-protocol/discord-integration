@@ -116,7 +116,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
       await interaction.editReply({
         content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
           interaction.member!.user
-        }. You can start sending messages now. Head over ✈ to #introductions and tell us a little more about yourself.`,
+        }. You can start sending messages now. Head over to #introductions-👋 and tell us a little more about yourself.`,
       });
       return;
     }
