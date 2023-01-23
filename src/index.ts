@@ -21,6 +21,34 @@ import { commands } from "./commands";
 
 const port = process.env.PORT || 8080;
 
+interface GetStatusFromSignatureOptions {
+  signature: string;
+  userId: string;
+}
+
+const fetchStatusFromSignature = async ({
+  signature,
+  userId,
+}: GetStatusFromSignatureOptions) => {
+  try {
+    const walletAddress = ethers.utils.verifyMessage(
+      config.paywallConfig.messageToSign,
+      signature
+    );
+    const status = await hasMembership(walletAddress);
+    await appendWalletAddress(userId, walletAddress);
+    return {
+      status,
+      walletAddress,
+    };
+  } catch {
+    return {
+      status: false,
+      walletAddress: null,
+    };
+  }
+};
+
 const client = new Client({
   intents: ["GUILD_MEMBERS"],
 });
@@ -98,10 +126,7 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
   const { walletAddresses } = user?.toJSON();
 
   for (const walletAddress of walletAddresses) {
-    const validMembership = await hasMembership(
-      walletAddress,
-      config.paywallConfig
-    );
+    const validMembership = await hasMembership(walletAddress);
 
     if (validMembership) {
       let role = interaction.guild?.roles.cache.get(config.roleId);
@@ -181,10 +206,7 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
     const { walletAddresses } = user?.toJSON();
 
     for (const walletAddress of walletAddresses) {
-      const validMembership = await hasMembership(
-        walletAddress,
-        config.paywallConfig
-      );
+      const validMembership = await hasMembership(walletAddress);
 
       if (validMembership) {
         let role = interaction.guild?.roles.cache.get(config.roleId);
@@ -254,7 +276,18 @@ fastify.get<{
         "We could not find a valid request for the specified nounce. Please go through the bot again to regenerate a new one.",
     });
   }
+
   const { userId } = nounce.toJSON();
+
+  const { status } = await fetchStatusFromSignature({
+    signature: request.query.signature,
+    userId: userId!,
+  });
+
+  if (!status) {
+    return response.redirect(new URL("/membership", config.host!).toString());
+  }
+
   const { guildId, roleId } = config;
   const guild = await client.guilds.fetch(guildId);
   const member = await guild.members.fetch(userId!);
@@ -268,15 +301,9 @@ fastify.get<{
       content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
     });
   }
+
   response.redirect(`https://discord.com/channels/${guildId}`);
-
   await nounce.destroy();
-
-  const walletAddress = ethers.utils.verifyMessage(
-    config.paywallConfig.messageToSign,
-    request.query.signature
-  );
-  await appendWalletAddress(userId!, walletAddress);
   return;
 });
 
@@ -296,7 +323,7 @@ fastify.get<{
     paywallConfig.messageToSign,
     signature
   );
-  const hasValidMembership = await hasMembership(walletAddress, paywallConfig);
+  const hasValidMembership = await hasMembership(walletAddress);
 
   if (hasValidMembership) {
     const discordOauthURL = oauth.generateAuthUrl({
