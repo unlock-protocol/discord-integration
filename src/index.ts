@@ -427,7 +427,7 @@ fastify.addHook("onReady", async () => {
           .setEmoji("🔐")
       );
       await channel.send({
-        content: `Hello ${member.user}! Are you ready to be a part of the Unlock Community? Press unlock button to start.`,
+        content: `Hello ${member.user}! Are you ready to be a part of the Unlock Community? Type /unlock to start.`,
         components: [row],
       });
     });
