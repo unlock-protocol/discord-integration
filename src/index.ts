@@ -419,16 +419,16 @@ fastify.addHook("onReady", async () => {
         return;
       }
 
-      const row = new MessageActionRow().addComponents(
+      /* const row = new MessageActionRow().addComponents(
         new MessageButton()
           .setCustomId("unlock")
           .setLabel("Unlock Discord")
           .setStyle("PRIMARY")
           .setEmoji("🔐")
-      );
+      ); */
       await channel.send({
         content: `Hello ${member.user}! Are you ready to be a part of the Unlock Community? Type /unlock to start.`,
-        components: [row],
+        // components: [row],
       });
     });
 
