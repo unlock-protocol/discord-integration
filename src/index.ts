@@ -82,23 +82,23 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
 
   let role = await interaction.guild?.roles.fetch(config.roleId);
 
-  const hasRole = (
-    interaction.member?.roles as GuildMemberRoleManager
-  ).cache.get(role!.id);
+  // const hasRole = (
+  //   interaction.member?.roles as GuildMemberRoleManager
+  // ).cache.get(role!.id);
 
-  if (hasRole) {
-    await interaction.editReply({
-      content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
-    });
-    return;
-  }
+  // if (hasRole) {
+  //   await interaction.editReply({
+  //     content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
+  //   });
+  //   return;
+  // }
   const user = await User.findOne({
     where: {
       id: interaction.member?.user.id,
     },
   });
 
-  if (!user) {
+  const showCheckout = async (interaction: ButtonInteraction) => {
     const [nounce] = await Nounce.upsert({
       id: crypto.randomUUID(),
       userId: interaction.member!.user.id,
@@ -120,6 +120,10 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
         "You need to go through the checkout and claim a membership NFT.",
       components: [row],
     });
+  };
+
+  if (!user) {
+    await showCheckout(interaction);
     return;
   }
 
@@ -146,6 +150,9 @@ async function unlockInteractionHandler(interaction: ButtonInteraction) {
       return;
     }
   }
+
+  // If the user exists but does not have a valid membership
+  await showCheckout(interaction);
 }
 
 async function UnlockCommandHandler(interaction: CommandInteraction) {
@@ -162,23 +169,22 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
 
     let role = await interaction.guild?.roles.fetch(config.roleId);
 
-    const hasRole = (
-      interaction.member?.roles as GuildMemberRoleManager
-    ).cache.get(role!.id);
+    // const hasRole = (interaction.member
+    //   ?.roles as GuildMemberRoleManager).cache.get(role!.id);
 
-    if (hasRole) {
-      await interaction.editReply({
-        content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
-      });
-      return;
-    }
+    // if (hasRole) {
+    //   await interaction.editReply({
+    //     content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
+    //   });
+    //   return;
+    // }
     const user = await User.findOne({
       where: {
         id: interaction.member?.user.id,
       },
     });
 
-    if (!user) {
+    const showCheckout = async (interaction: CommandInteraction) => {
       const [nounce] = await Nounce.upsert({
         id: crypto.randomUUID(),
         userId: interaction.member!.user.id,
@@ -200,6 +206,10 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
           "You need to go through the checkout and claim a membership NFT.",
         components: [row],
       });
+    };
+
+    if (!user) {
+      await showCheckout(interaction);
       return;
     }
 
@@ -228,6 +238,8 @@ async function UnlockCommandHandler(interaction: CommandInteraction) {
         return;
       }
     }
+    // If the user exists but does not have a valid membership
+    await showCheckout(interaction);
   }
 }
 
@@ -377,7 +389,8 @@ fastify.get<{
       });
     }
     return res.redirect(`https://discord.com/channels/${guildId}`);
-  } catch (error: any) {
+  } catch (error) {
+    // @ts-expect-error
     fastify.log.error(error.message);
     return res.status(500).send({
       message:

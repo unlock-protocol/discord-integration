@@ -1,21 +1,27 @@
-import { Web3Service } from "@unlock-protocol/unlock-js";
+import { ethers } from "ethers";
 import { config } from "./config";
-import { networks } from "@unlock-protocol/networks";
 
-export const web3Service = new Web3Service(networks);
+const ABI = [
+  {
+    inputs: [{ internalType: "address", name: "_keyOwner", type: "address" }],
+    name: "getHasValidKey",
+    outputs: [{ internalType: "bool", name: "isValid", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
 
 export async function hasMembership(userAddress: string) {
   for (const [lockAddress, { network }] of Object.entries<{ network: number }>(
     config.paywallConfig.locks
   )) {
-    const keyId = await web3Service.getTokenIdForOwner(
-      lockAddress,
-      userAddress,
-      network
+    const provider = new ethers.providers.JsonRpcProvider(
+      `https://rpc.unlock-protocol.com/${network}`
     );
-    if (keyId > 0) {
-      return true;
-    }
+
+    const lock = new ethers.Contract(lockAddress, ABI, provider);
+    const hasValidKey = await lock.getHasValidKey(userAddress);
+    console.log({ userAddress, lockAddress, network, hasValidKey });
+    return hasValidKey;
   }
-  return false;
 }
