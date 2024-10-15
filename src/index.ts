@@ -1,23 +1,16 @@
 import Fastify from "fastify";
 import DiscordOauth from "discord-oauth2";
 import { config } from "./config";
-import crypto from "crypto";
 import cookie from "@fastify/cookie";
-import {
-  Client,
-  Role,
-  MessageActionRow,
-  MessageButton,
-  ButtonInteraction,
-  GuildMemberRoleManager,
-  CommandInteraction,
-} from "discord.js";
-import { sequelize, Nounce, User, appendWalletAddress } from "./database";
+import { Client, Role } from "discord.js";
+import { sequelize, Nounce, appendWalletAddress } from "./database";
 import { hasMembership } from "./unlock";
 import { ethers } from "ethers";
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { commands } from "./commands";
+import unlockInteractionHandler from "./handlers/interactionHandler";
+import unlockCommandHandler from "./handlers/commandHandler";
 
 const port = process.env.PORT || 8080;
 
@@ -74,174 +67,6 @@ fastify.addHook("onClose", async (_, done) => {
 fastify.register(cookie, {
   parseOptions: {},
 });
-
-async function unlockInteractionHandler(interaction: ButtonInteraction) {
-  await interaction.deferReply({
-    ephemeral: true,
-  });
-
-  let role = await interaction.guild?.roles.fetch(config.roleId);
-
-  // const hasRole = (
-  //   interaction.member?.roles as GuildMemberRoleManager
-  // ).cache.get(role!.id);
-
-  // if (hasRole) {
-  //   await interaction.editReply({
-  //     content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
-  //   });
-  //   return;
-  // }
-  const user = await User.findOne({
-    where: {
-      id: interaction.member?.user.id,
-    },
-  });
-
-  const showCheckout = async (interaction: ButtonInteraction) => {
-    const [nounce] = await Nounce.upsert({
-      id: crypto.randomUUID(),
-      userId: interaction.member!.user.id,
-    });
-
-    const nounceData = nounce.toJSON();
-
-    const checkoutURL = new URL(`/checkout/${nounceData.id}`, config.host!);
-
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
-        .setStyle("LINK")
-        .setLabel("Claim Membership")
-        .setURL(checkoutURL.toString())
-        .setEmoji("🔑")
-    );
-    await interaction.editReply({
-      content:
-        "You need to go through the checkout and claim a membership NFT.",
-      components: [row],
-    });
-  };
-
-  if (!user) {
-    await showCheckout(interaction);
-    return;
-  }
-
-  const { walletAddresses } = user?.toJSON();
-
-  for (const walletAddress of walletAddresses) {
-    const validMembership = await hasMembership(walletAddress);
-
-    if (validMembership) {
-      let role = interaction.guild?.roles.cache.get(config.roleId);
-
-      if (!role) {
-        const fetchedRole = await interaction.guild?.roles.fetch(config.roleId);
-        role = fetchedRole!;
-      }
-
-      await (interaction.member!.roles as GuildMemberRoleManager).add(role);
-
-      await interaction.editReply({
-        content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
-          interaction.member!.user
-        }. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
-      });
-      return;
-    }
-  }
-
-  // If the user exists but does not have a valid membership
-  await showCheckout(interaction);
-}
-
-async function UnlockCommandHandler(interaction: CommandInteraction) {
-  if (interaction.commandName === "ping") {
-    return interaction.reply({
-      ephemeral: true,
-      content: "Pong!",
-    });
-  }
-  if (interaction.commandName === "unlock") {
-    await interaction.deferReply({
-      ephemeral: true,
-    });
-
-    let role = await interaction.guild?.roles.fetch(config.roleId);
-
-    // const hasRole = (interaction.member
-    //   ?.roles as GuildMemberRoleManager).cache.get(role!.id);
-
-    // if (hasRole) {
-    //   await interaction.editReply({
-    //     content: `You are already a member of Unlock Community, ${interaction.member?.user}. You can send messages.`,
-    //   });
-    //   return;
-    // }
-    const user = await User.findOne({
-      where: {
-        id: interaction.member?.user.id,
-      },
-    });
-
-    const showCheckout = async (interaction: CommandInteraction) => {
-      const [nounce] = await Nounce.upsert({
-        id: crypto.randomUUID(),
-        userId: interaction.member!.user.id,
-      });
-
-      const nounceData = nounce.toJSON();
-
-      const checkoutURL = new URL(`/checkout/${nounceData.id}`, config.host!);
-
-      const row = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setStyle("LINK")
-          .setLabel("Claim Membership")
-          .setURL(checkoutURL.toString())
-          .setEmoji("🔑")
-      );
-      await interaction.editReply({
-        content:
-          "You need to go through the checkout and claim a membership NFT.",
-        components: [row],
-      });
-    };
-
-    if (!user) {
-      await showCheckout(interaction);
-      return;
-    }
-
-    const { walletAddresses } = user?.toJSON();
-
-    for (const walletAddress of walletAddresses) {
-      const validMembership = await hasMembership(walletAddress);
-
-      if (validMembership) {
-        let role = interaction.guild?.roles.cache.get(config.roleId);
-
-        if (!role) {
-          const fetchedRole = await interaction.guild?.roles.fetch(
-            config.roleId
-          );
-          role = fetchedRole!;
-        }
-
-        await (interaction.member!.roles as GuildMemberRoleManager).add(role);
-
-        await interaction.editReply({
-          content: `You already have a valid Unlock Membership. Welcome to Unlock Community, ${
-            interaction.member!.user
-          }. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
-        });
-        return;
-      }
-    }
-    // If the user exists but does not have a valid membership
-    await showCheckout(interaction);
-  }
-}
 
 fastify.get<{
   Params: {
@@ -452,7 +277,7 @@ fastify.addHook("onReady", async () => {
         }
       }
       if (interaction.isCommand()) {
-        return UnlockCommandHandler(interaction);
+        return unlockCommandHandler(interaction);
       }
     });
   } catch (error) {

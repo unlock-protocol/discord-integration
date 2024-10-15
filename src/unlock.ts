@@ -21,7 +21,6 @@ export async function hasMembership(userAddress: string) {
 
     const lock = new ethers.Contract(lockAddress, ABI, provider);
     const hasValidKey = await lock.getHasValidKey(userAddress);
-    console.log({ userAddress, lockAddress, network, hasValidKey });
     return hasValidKey;
   }
 }
