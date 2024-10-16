@@ -1,11 +1,14 @@
+const communityLockAddress = "0xb6bd8fc42df6153f79eea941a2b4c86f8e5f7b1d";
+const primeLockAddress = "0x01d8412ee898a74ce44187f4877bf9303e3c16e5";
+const network = 8453;
+
 export const paywallConfig = {
   messageToSign: "Allow access to Unlock Discord Community",
+  name: "Join the Unlock Community",
   pessimistic: true,
+  network,
   locks: {
-    "0xb6bd8fc42df6153f79eea941a2b4c86f8e5f7b1d": {
-      name: "Unlock Community",
-      network: 8453,
-    },
+    [communityLockAddress]: {},
   },
   persistentCheckout: true,
   metadataInputs: [{ name: "email", type: "email", required: true }],
