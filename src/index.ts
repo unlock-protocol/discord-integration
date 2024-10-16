@@ -4,7 +4,7 @@ import { config } from "./config";
 import cookie from "@fastify/cookie";
 import { Client, Role } from "discord.js";
 import { sequelize, Nounce, appendWalletAddress } from "./database";
-import { hasMembership } from "./unlock";
+import { rolesForUserAddress } from "./unlock";
 import { ethers } from "ethers";
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
@@ -19,7 +19,8 @@ interface GetStatusFromSignatureOptions {
   userId: string;
 }
 
-const fetchStatusFromSignature = async ({
+// Given a signature and a userId, this function will return the status of the user
+const fetchRolesFromSignature = async ({
   signature,
   userId,
 }: GetStatusFromSignatureOptions) => {
@@ -28,15 +29,16 @@ const fetchStatusFromSignature = async ({
       config.paywallConfig.messageToSign,
       signature
     );
-    const status = await hasMembership(walletAddress);
     await appendWalletAddress(userId, walletAddress);
+    const roles = await rolesForUserAddress(walletAddress);
     return {
-      status,
+      roles,
       walletAddress,
     };
-  } catch {
+  } catch (error) {
+    console.error("Error in fetching roles from signature");
     return {
-      status: false,
+      roles: [],
       walletAddress: null,
     };
   }
@@ -117,20 +119,22 @@ fastify.get<{
 
   const { userId } = nounce.toJSON();
 
-  const { status } = await fetchStatusFromSignature({
+  const { roles } = await fetchRolesFromSignature({
     signature: request.query.signature,
     userId: userId!,
   });
 
-  if (!status) {
+  if (roles.length === 0) {
     return response.redirect(new URL("/membership", config.host!).toString());
   }
 
-  const { guildId, roleId } = config;
+  const { guildId } = config;
   const guild = await client.guilds.fetch(guildId);
   const member = await guild.members.fetch(userId!);
-  const role = await guild.roles.fetch(roleId);
-  await member.roles.add(role as Role);
+  for (let roleId of roles) {
+    const role = await guild.roles.fetch(roleId);
+    await member.roles.add(role as Role);
+  }
 
   const channel = await guild.channels.fetch(config.channelId);
 
@@ -145,6 +149,7 @@ fastify.get<{
   return;
 });
 
+// Users are redirected here after the checkout process
 fastify.get<{
   Querystring: {
     signature: string;
@@ -161,9 +166,8 @@ fastify.get<{
     paywallConfig.messageToSign,
     signature
   );
-  const hasValidMembership = await hasMembership(walletAddress);
-
-  if (hasValidMembership) {
+  const roles = await rolesForUserAddress(walletAddress);
+  if (roles.length > 0) {
     const discordOauthURL = oauth.generateAuthUrl({
       redirectUri: new URL(`/access`, config.host).toString(),
       scope: ["guilds", "guilds.join", "identify"],
@@ -182,7 +186,7 @@ fastify.get<{
 }>("/access", async (req, res) => {
   try {
     const code = req.query.code;
-    const { guildId, roleId } = config;
+    const { guildId } = config;
     const data = await oauth.tokenRequest({
       code,
       grantType: "authorization_code",
@@ -196,13 +200,11 @@ fastify.get<{
     const guild = await client.guilds.fetch(guildId);
     if (userGuildIds.includes(guildId!)) {
       const member = await guild.members.fetch(user.id);
-      const role = await guild.roles.fetch(roleId!);
-      await member.roles.add(role!);
     } else {
       await oauth.addMember({
         userId: user.id,
         guildId,
-        roles: [roleId],
+        roles: [],
         botToken: config.token!,
         accessToken: data.access_token,
       });

@@ -16,6 +16,14 @@ export const paywallConfig = {
   metadataInputs: [{ name: "email", type: "email", required: true }],
 };
 
+const communityRole = "687375227629338750";
+const primeRole = "1295864797857976362";
+
+const roleMapping = {
+  [communityLockAddress]: communityRole,
+  [primeLockAddress]: primeRole,
+};
+
 export const config = {
   paywallConfig,
   clientId: process.env.DISCORD_CLIENT_ID!,
@@ -23,7 +31,9 @@ export const config = {
   host: process.env.HOST!,
   token: process.env.DISCORD_BOT_TOKEN!,
   databaseURL: process.env.DATABASE_URL!,
-  guildId: process.env.DISCORD_GUILD_ID!,
-  roleId: process.env.DISCORD_ROLE_ID!,
-  channelId: process.env.DISCORD_CHANNEL_ID!,
+  guildId: process.env.DISCORD_GUILD_ID!, // That is the server id (right click on server to get it!)
+  channelId: process.env.DISCORD_CHANNEL_ID!, // Channel in which we listen to the commands
+  roleMapping,
+  primeRole,
+  communityRole,
 };

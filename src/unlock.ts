@@ -11,16 +11,19 @@ const ABI = [
   },
 ];
 
-export async function hasMembership(userAddress: string) {
-  for (const [lockAddress, { network }] of Object.entries<{ network: number }>(
-    config.paywallConfig.locks
-  )) {
+export async function rolesForUserAddress(userAddress: string) {
+  const roles = [];
+  for (const [lockAddress, roleId] of Object.entries(config.roleMapping)) {
     const provider = new ethers.providers.JsonRpcProvider(
-      `https://rpc.unlock-protocol.com/${network}`
+      `https://rpc.unlock-protocol.com/${config.paywallConfig.network}`
     );
 
     const lock = new ethers.Contract(lockAddress, ABI, provider);
     const hasValidKey = await lock.getHasValidKey(userAddress);
-    return hasValidKey;
+
+    if (hasValidKey) {
+      roles.push(roleId);
+    }
   }
+  return roles;
 }
