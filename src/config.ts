@@ -7,6 +7,7 @@ export const paywallConfig = {
       network: 8453,
     },
   },
+  persistentCheckout: true,
   metadataInputs: [{ name: "email", type: "email", required: true }],
 };
 

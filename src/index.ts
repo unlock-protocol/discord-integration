@@ -68,6 +68,7 @@ fastify.register(cookie, {
   parseOptions: {},
 });
 
+// This is the URL that users are redirected to after they click the unlock button
 fastify.get<{
   Params: {
     nounce: string;
@@ -240,6 +241,8 @@ fastify.addHook("onReady", async () => {
       fastify.log.info(`Discord bot connected!`);
     });
 
+    // when a user joins the server they get the visitor role
+    // and the bot messages them!
     client.on("guildMemberAdd", async (member) => {
       if (member.guild.id !== config.guildId) {
         return;
@@ -257,16 +260,8 @@ fastify.addHook("onReady", async () => {
         return;
       }
 
-      /* const row = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setCustomId("unlock")
-          .setLabel("Unlock Discord")
-          .setStyle("PRIMARY")
-          .setEmoji("🔐")
-      ); */
       await channel.send({
         content: `Hello ${member.user}! To join, type the \`/unlock\` command (don't forget the \`/\`) and press return.`,
-        // components: [row],
       });
     });
 
