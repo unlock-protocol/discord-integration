@@ -228,9 +228,7 @@ fastify.get<{
 });
 
 fastify.get<{}>("/", async (req, res) => {
-  return res.send({
-    message: "Hello World!",
-  });
+  return res.redirect(302, "https://discord.com/invite/ueJDH2qwRs");
 });
 
 fastify.addHook("onReady", async () => {
