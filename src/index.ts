@@ -227,6 +227,12 @@ fastify.get<{}>("/", async (req, res) => {
   return res.redirect(302, "https://discord.com/invite/ueJDH2qwRs");
 });
 
+fastify.get<{}>("/whoami", async (req, res) => {
+  return res.send({
+    message: `You are a visitor: ${req.raw.connection.remoteAddress}!`,
+  });
+});
+
 fastify.addHook("onReady", async () => {
   try {
     await sequelize.sync();
