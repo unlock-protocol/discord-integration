@@ -26,11 +26,15 @@ export const unlockHandler = async (
     return;
   }
 
+  console.log("We have a user!");
+
   const { walletAddresses } = user?.toJSON();
+  console.log("We have wallets", walletAddresses);
 
   for (const walletAddress of walletAddresses) {
     const roles = await rolesForUserAddress(walletAddress);
 
+    console.log({ roles });
     // Adding the role(s) to the user
     for (const roleId of roles) {
       let role = interaction.guild?.roles.cache.get(roleId);
@@ -43,20 +47,24 @@ export const unlockHandler = async (
 
     // Prepare message based on the highest role
     if (roles.includes?.(config.primeRole)) {
+      console.log("User is prime!");
       await interaction.editReply({
         content: `You have a valid Unlock Prime Membership. Thank you ${
           interaction.member!.user
         }. Head over to <#1296201410588839936> for Prime only conversations :)`,
       });
       return;
-    } else if (roles.includes?.(config.communityRole))
+    } else if (roles.includes?.(config.communityRole)) {
+      console.log("User is community!!");
       await interaction.editReply({
         content: `You have a valid Unlock Membership. Welcome to the Unlock Community, ${
           interaction.member!.user
         }. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
       });
-    return;
+      return;
+    }
   }
+  console.log("fine, show checkout!");
 
   // If the user exists but does not have a valid membership
   await showCheckout(interaction);
