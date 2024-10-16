@@ -8,7 +8,9 @@ export const paywallConfig = {
   pessimistic: true,
   network,
   locks: {
-    [communityLockAddress]: {},
+    [communityLockAddress]: {
+      network,
+    },
   },
   persistentCheckout: true,
   metadataInputs: [{ name: "email", type: "email", required: true }],
