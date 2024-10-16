@@ -1,4 +1,3 @@
-import Fastify from "fastify";
 import DiscordOauth from "discord-oauth2";
 import { config } from "./config";
 import cookie from "@fastify/cookie";
@@ -11,6 +10,7 @@ import { Routes } from "discord-api-types/v9";
 import { commands } from "./commands";
 import unlockInteractionHandler from "./handlers/interactionHandler";
 import unlockCommandHandler from "./handlers/commandHandler";
+import { fastify } from "./init";
 
 const port = process.env.PORT || 8080;
 
@@ -36,7 +36,7 @@ const fetchRolesFromSignature = async ({
       walletAddress,
     };
   } catch (error) {
-    console.error("Error in fetching roles from signature");
+    fastify.log.error("Error in fetching roles from signature");
     return {
       roles: [],
       walletAddress: null,
@@ -56,10 +56,6 @@ const oauth = new DiscordOauth({
 const restClient = new REST({
   version: "9",
 }).setToken(config.token);
-
-const fastify = Fastify({
-  logger: true,
-});
 
 fastify.addHook("onClose", async (_, done) => {
   await sequelize.close();

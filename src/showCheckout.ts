@@ -10,7 +10,7 @@ import { config } from "./config";
 const showCheckout = async (
   interaction: CommandInteraction | ButtonInteraction
 ) => {
-  const [nounce] = await Nounce.upsert({
+  const nounce = await Nounce.create({
     id: crypto.randomUUID(),
     userId: interaction.member!.user.id,
   });
