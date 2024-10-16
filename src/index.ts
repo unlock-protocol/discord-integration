@@ -227,6 +227,12 @@ fastify.get<{
   }
 });
 
+fastify.get<{}>("/", async (req, res) => {
+  return res.send({
+    message: "Hello World!",
+  });
+});
+
 fastify.addHook("onReady", async () => {
   try {
     await sequelize.sync();
