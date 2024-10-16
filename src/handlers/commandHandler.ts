@@ -1,12 +1,8 @@
-import {
-  CommandInteraction,
-  GuildMemberRoleManager,
-  MessageActionRow,
-  MessageButton,
-} from "discord.js";
-import { Nounce, User } from "../database";
+import { CommandInteraction, GuildMemberRoleManager } from "discord.js";
+import { User } from "../database";
 import { config } from "../config";
 import { hasMembership } from "../unlock";
+import showCheckout from "../showCheckout";
 
 export async function unlockCommandHandler(interaction: CommandInteraction) {
   if (interaction.commandName === "ping") {
@@ -25,30 +21,6 @@ export async function unlockCommandHandler(interaction: CommandInteraction) {
         id: interaction.member?.user.id,
       },
     });
-
-    const showCheckout = async (interaction: CommandInteraction) => {
-      const [nounce] = await Nounce.upsert({
-        id: crypto.randomUUID(),
-        userId: interaction.member!.user.id,
-      });
-
-      const nounceData = nounce.toJSON();
-
-      const checkoutURL = new URL(`/checkout/${nounceData.id}`, config.host!);
-
-      const row = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setStyle("LINK")
-          .setLabel("Claim Membership")
-          .setURL(checkoutURL.toString())
-          .setEmoji("🔑")
-      );
-      await interaction.editReply({
-        content:
-          "You need to go through the checkout and claim a membership NFT.",
-        components: [row],
-      });
-    };
 
     if (!user) {
       await showCheckout(interaction);
