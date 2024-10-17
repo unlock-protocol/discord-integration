@@ -11,7 +11,9 @@ const ABI = [
   },
 ];
 
-export async function rolesForUserAddress(userAddress: string) {
+export async function rolesForUserAddress(
+  userAddress: string
+): Promise<string[]> {
   const roles = [];
   for (const [lockAddress, roleId] of Object.entries(config.roleMapping)) {
     const provider = new ethers.providers.JsonRpcProvider(

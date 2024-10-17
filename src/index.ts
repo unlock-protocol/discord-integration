@@ -23,7 +23,10 @@ interface GetStatusFromSignatureOptions {
 const fetchRolesFromSignature = async ({
   signature,
   userId,
-}: GetStatusFromSignatureOptions) => {
+}: GetStatusFromSignatureOptions): Promise<{
+  roles: string[];
+  walletAddress: string | null;
+}> => {
   try {
     const walletAddress = ethers.utils.verifyMessage(
       config.paywallConfig.messageToSign,
@@ -92,6 +95,7 @@ fastify.get<{
   return response.redirect(checkoutURL.toString());
 });
 
+// This is where the user us redirected after they have completed the checkout process
 fastify.get<{
   Params: {
     nounce: string;
@@ -127,6 +131,7 @@ fastify.get<{
   const { guildId } = config;
   const guild = await client.guilds.fetch(guildId);
   const member = await guild.members.fetch(userId!);
+
   for (let roleId of roles) {
     const role = await guild.roles.fetch(roleId);
     await member.roles.add(role as Role);
@@ -135,8 +140,13 @@ fastify.get<{
   const channel = await guild.channels.fetch(config.channelId);
 
   if (channel?.type === "GUILD_TEXT") {
+    let message = `Welcome to the Unlock Community, ${member.user}. Head over to <#1052336574211305574> and tell us a little more about yourself!`;
+    if (roles.includes?.(config.primeRole)) {
+      message = `${message}. It looks like you are also a Prime member! Head over to <#1296201410588839936> for Prime only conversations :)`;
+    }
+
     await channel.send({
-      content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself and why you're here!`,
+      content: message,
     });
   }
 
