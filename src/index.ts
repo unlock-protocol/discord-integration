@@ -136,7 +136,7 @@ fastify.get<{
 
   if (channel?.type === "GUILD_TEXT") {
     await channel.send({
-      content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
+      content: `Welcome to the Unlock Community, ${member.user}. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself and why you're here!`,
     });
   }
 

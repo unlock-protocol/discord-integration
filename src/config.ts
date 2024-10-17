@@ -11,6 +11,9 @@ export const paywallConfig = {
     [communityLockAddress]: {
       network,
     },
+    [primeLockAddress]: {
+      network,
+    },
   },
   persistentCheckout: true,
   metadataInputs: [{ name: "email", type: "email", required: true }],
