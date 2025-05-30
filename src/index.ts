@@ -142,7 +142,7 @@ fastify.get<{
   if (channel?.type === "GUILD_TEXT") {
     let message = `Welcome to the Unlock Community, ${member.user}. Head over to <#1052336574211305574> and tell us a little more about yourself!`;
     if (roles.includes?.(config.primeRole)) {
-      message = `${message}. It looks like you are also a Prime member! Head over to <#1296201410588839936> for Prime only conversations :)`;
+      message = `${message}. It looks like you are also a Prime member! Head over to <#1052336574211305574> and introduce yourself if you have not done it yet :)`;
     }
 
     await channel.send({
