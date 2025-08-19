@@ -309,6 +309,7 @@ fastify.addHook("onReady", async () => {
   }
 });
 
+fastify.log.info("BOOT: about to listen");
 fastify.listen(port, "0.0.0.0", async (error, address) => {
   if (error) {
     fastify.log.error(error.message);
