@@ -246,7 +246,6 @@ fastify.get<{}>("/whoami", async (req, res) => {
 fastify.addHook("onReady", async () => {
   try {
     await sequelize.sync();
-    await client.login(config.token);
 
     await restClient.put(
       Routes.applicationGuildCommands(config.clientId, config.guildId),
@@ -301,6 +300,9 @@ fastify.addHook("onReady", async () => {
         return unlockCommandHandler(interaction);
       }
     });
+
+    // connect the client!
+    await client.login(config.token);
   } catch (error) {
     if (error instanceof Error) {
       fastify.log.error(error.message);
