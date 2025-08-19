@@ -263,7 +263,7 @@ fastify.addHook("onReady", async () => {
           "https://raw.githubusercontent.com/unlock-protocol/unlock/refs/heads/master/design/logo/%C9%84nlock-Logo-symbol-round-beige.png"
         );
       } catch (error) {
-        fastify.log.error(`Failed to set avatar: ${error.message}`);
+        fastify.log.error(`Failed to set avatar: ${error}`);
       }
     });
 
