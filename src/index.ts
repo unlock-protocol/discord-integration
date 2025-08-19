@@ -255,8 +255,16 @@ fastify.addHook("onReady", async () => {
       }
     );
 
-    client.on("ready", () => {
+    client.on("ready", async () => {
       fastify.log.info(`Discord bot connected!`);
+      // Set the image!
+      try {
+        await client.user?.setAvatar(
+          "https://raw.githubusercontent.com/unlock-protocol/unlock/refs/heads/master/design/logo/%C9%84nlock-Logo-symbol-round-beige.png"
+        );
+      } catch (error) {
+        fastify.log.error(`Failed to set avatar: ${error.message}`);
+      }
     });
 
     // when a user joins the server they get the visitor role
