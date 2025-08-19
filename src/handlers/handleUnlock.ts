@@ -46,7 +46,7 @@ export const unlockHandler = async (
       await interaction.editReply({
         content: `You have a valid Unlock Prime Membership. Thank you ${
           interaction.member!.user
-        }. Head over to <#1296201410588839936> for Prime only conversations :)`,
+        }.`,
       });
       return;
     } else if (roles.includes?.(config.communityRole)) {
