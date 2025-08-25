@@ -3,14 +3,23 @@ import unlockHandler from "./handleUnlock";
 
 export async function unlockCommandHandler(interaction: CommandInteraction) {
   if (interaction.commandName === "ping") {
-    return interaction.reply({
+    interaction.reply({
       ephemeral: true,
       content: "Pong!",
     });
   } else if (interaction.commandName === "unlock") {
-    return unlockHandler(interaction);
+    try {
+      unlockHandler(interaction);
+    } catch (error) {
+      console.error(error);
+      interaction.reply({
+        ephemeral: true,
+        content:
+          "It looks like the bot encountered an error while processing your request. Please try again!",
+      });
+    }
   } else {
-    return interaction.reply({
+    interaction.reply({
       ephemeral: true,
       content: "Please, type `/unlock`!",
     });
