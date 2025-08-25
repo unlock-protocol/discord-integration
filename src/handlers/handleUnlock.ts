@@ -12,10 +12,6 @@ export const unlockHandler = async (
   interaction: ButtonInteraction | CommandInteraction
 ) => {
   try {
-    await interaction.deferReply({
-      ephemeral: true,
-    });
-
     const user = await User.findOne({
       where: {
         id: interaction.member?.user.id,
@@ -44,14 +40,16 @@ export const unlockHandler = async (
 
       // Prepare message based on the highest role
       if (roles.includes?.(config.primeRole)) {
-        await interaction.editReply({
+        interaction.reply({
+          ephemeral: true,
           content: `You have a valid Unlock Prime Membership. Thank you ${
             interaction.member!.user
           }.`,
         });
         return;
       } else if (roles.includes?.(config.communityRole)) {
-        await interaction.editReply({
+        interaction.reply({
+          ephemeral: true,
           content: `You have a valid Unlock Membership. Welcome to the Unlock Community, ${
             interaction.member!.user
           }. You can start sending messages now. Head over to <#1052336574211305574> and tell us a little more about yourself.`,
@@ -63,7 +61,8 @@ export const unlockHandler = async (
     await showCheckout(interaction);
   } catch (error) {
     console.error(error);
-    await interaction.editReply({
+    interaction.reply({
+      ephemeral: true,
       content:
         "It looks like the bot encountered an error while processing your request. Please try again!",
     });
