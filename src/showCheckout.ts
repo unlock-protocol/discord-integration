@@ -27,7 +27,9 @@ const showCheckout = async (
       .setURL(checkoutURL.toString())
       .setEmoji("🔑")
   );
-  await interaction.editReply({
+
+  await interaction.reply({
+    ephemeral: true,
     content: "You need to go through the checkout and claim a membership NFT.",
     components: [row],
   });
